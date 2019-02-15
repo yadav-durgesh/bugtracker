@@ -1,0 +1,6 @@
+<label for="projectid">{t}Project{/t}: </label>
+<select id="projectid" name="projectid">
+   {foreach from=$projects key=id item=i}
+   <option {if $i.selected}selected="selected"{/if} value="{$i.id}">{$i.name}</option>
+   {/foreach}
+</select>

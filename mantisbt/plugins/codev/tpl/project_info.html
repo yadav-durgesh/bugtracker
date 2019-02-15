@@ -1,0 +1,50 @@
+<div id="content">
+{if (!isset($accessDenied) || (0 == $accessDenied)) }
+
+   {if isset($projects)}
+   <div class="center">
+      <form name="mainForm" id="mainForm" class = "formWithTabsHistory" method="get" action="{$page}">
+         <fieldset>
+            <label for="projectid">{t}Project{/t}: </label>
+            <select id="projectid" name="projectid">
+               {foreach from=$projects key=id item=i}
+               <option {if $i.selected}selected="selected"{/if} value="{$i.id}">{$i.name}</option>
+               {/foreach}
+            </select>
+            <input type="submit" value="{t}Select{/t}" />
+         </fieldset>
+      </form>
+   </div>
+   {/if}
+
+   {if isset($projectid)}
+      
+         <div id="tabsCommand" class="tabs {$ui_tabs_jquery}" style="margin-top:2em;">
+      <ul class="{$ui_tabs_jquery_ul}">
+         <li class="{$ui_tabs_jquery_li}"><a href="#tab_detailed_charges">{t}Charges{/t}</a></li>
+         <li class="{$ui_tabs_jquery_li}"><a href="#tab_indicators">{t}Indicators{/t}</a></li>
+      </ul>
+
+      <div id="tab_detailed_charges">{include file="$detailedChargesIndicatorFile"}</div>
+      <div id="tab_indicators">{include file="tools/dashboard.html"}</div>
+
+   {/if}
+   {if isset($error)}
+   <p class="center ui-state-error-text">{$error}</p>
+   {/if}
+   
+   <script type="text/javascript">
+      jQuery(document).ready(function() {
+         jQuery("#projectid").change(function() {
+            if ('0' !== this.value) {
+               var form = jQuery('#mainForm');
+               form.submit();
+            }
+         });
+      });
+   </script>
+   
+{else}
+<p class="center ui-state-error-text">{t}Please select a team to access this page.{/t}</p>
+{/if}
+</div>

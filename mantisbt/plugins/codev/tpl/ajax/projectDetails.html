@@ -1,0 +1,18 @@
+<table class="float" style="width: 300px;">
+   <thead>
+      <tr>
+         <th>{t}Category{/t}</th>
+         <th>{t}Nb Days{/t}</th>
+         <th>{t}Tasks{/t}</th>
+      </tr>
+   </thead>
+   <tbody>
+      {foreach from=$projectDetails key=id item=i}
+      <tr>
+         <td>{$i.catName}</td>
+         <td>{$i.duration}</td>
+         <td>{$i.formatedBugsPerCategory}</td>
+      </tr>
+      {/foreach}
+   </tbody>
+</table>

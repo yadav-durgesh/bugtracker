@@ -1,0 +1,23 @@
+<div id="content" style="margin-left:10em;margin-right:10em">
+   {if isset($logs)}
+   <script type="text/javascript" src="js_min/datatable.min.js"></script>
+   <table id="logs_table" class="datatable_csv">
+      <thead>
+         <tr>
+            <th>{t}Line{/t}</th>
+            <th>{t}Log{/t}</th>
+         </tr>
+      </thead>
+      <tbody>
+         {foreach $logs as $line => $text}
+         <tr>
+            <td>{$line}</td>
+            <td>{$text}</td>
+         </tr>
+         {/foreach}
+      </tbody>
+   </table>
+   {else}
+   <p class="center ui-state-error-text">{$error}</p>
+   {/if}
+</div>

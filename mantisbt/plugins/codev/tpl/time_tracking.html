@@ -1,0 +1,333 @@
+
+
+<div id="content" class="center">
+
+
+   {if isset($users) || isset($managedUser_realname)}
+   {if isset($managedUser_realname)}
+
+
+   {if $isManager}
+   {include file="modal/change_managedUser.html"}
+   {else}
+   <h2>{$managedUser_realname}</h2>
+   {/if}
+
+   <br/>
+
+   {if isset($error)}
+   <!-- TODO used by deleteTrack. mest be removed when delete done via Ajax -->
+   <span style="color:red">{t}ERROR{/t} : {t}Query FAILED{/t} : {$error}</span>
+   {/if}
+
+   <div>
+      <form id="form1" name="form1" method="post" action="{$page}">
+         <fieldset>
+            <label for="datepicker">{t}From{/t}:</label>
+            <input type="text" id="datepicker" class="datepicker" name="date" maxlength="10" size="10" title="{t}Date{/t}" />
+            {if $projects}
+            <select id="projectid" name="projectid" title="{t}Project{/t}">
+               <option value="0">{t}(all){/t}</option>
+               {foreach from=$projects key=id item=i}
+               <option {if $i.selected}selected="selected"{/if} value="{$i.id}">{$i.name}</option>
+               {/foreach}
+            </select>
+            {/if}
+            <a title="{t}Set filters{/t}" id="filters" style="text-decoration: none" href="{$page}">
+               {if $isOnlyAssignedTo || $isHideResolved}
+               <img border="0" width="16" height="12" align="absmiddle" src="images/im-filter-active.png" alt="{t}Set filters{/t}" />
+               {else}
+               <img border="0" width="16" height="12" align="absmiddle" src="images/im-filter.png" alt="{t}Set filters{/t}" />
+               {/if}
+            </a>
+            <select id="bugid" name="bugid" class="select2" style="width: 600px;" title="{t}Task{/t}">
+               {if count($issues) > 1}
+               <option value="0"></option>
+               {/if}
+               {foreach from=$issues key=id item=i}
+               <option {if $i.selected}selected="selected"{/if} value="{$i.id}">{$i.id}{if $i.tcId} / {$i.tcId}{/if} : {$i.summary}</option>
+               {/foreach}
+            </select>
+            <select id="job" name="job" title="{t}Job{/t}" style="width: 100px;" >
+               {if count($jobs) > 1}
+               <option value="0"></option>
+               {/if}
+               {foreach from=$jobs key=id item=i}
+               <option {if $i.selected}selected="selected"{/if} value="{$id}">{$i.name}</option>
+               {/foreach}
+            </select>
+            <select id="duree" name="duree" title="{t}Duration (in days){/t}">
+               <option  value="0"></option>
+               {foreach from=$duration key=id item=i}
+               <option {if $i.selected}selected="selected"{/if} value="{$id}">{$i.name}</option>
+               {/foreach}
+            </select>
+            <input type="hidden" name="action" value="noAction" />
+            <input type="hidden" name="year" value="{$year}" />
+            <input type="hidden" name="weekid" value="{$weekid}" />
+            <input type="hidden" name="userid" value="{$userid}" />
+            <input type="button" name="btAddTrack" id="btAddTrack" value="{t}Add{/t}" />
+         </fieldset>
+      </form>
+
+      <form id="getIssuesAndDurationsForm" name="formGetIssuesAndDurations" method="post" action="{$ajaxPage}" >
+         <fieldset>
+            <input type="hidden" name="action" value="getIssuesAndDurations" />
+            <input type="hidden" name="managedUserid" value="{$userid}" />
+            <input type="hidden" name="projectid" value="" />
+         </fieldset>
+      </form>
+
+      <div id="setfilter_dialog_form" title="{t}Task Filters{/t}" class="ui-helper-hidden">
+         <p id="setfilter_desc">{t}Reduce the tasks selection by setting some filters{/t}</p>
+         <form id="formSetFilters" name="formSetFilters" method="post" action="{$page}" >
+            <fieldset>
+               <input type="checkbox" id="cb_onlyAssignedTo" name="cb_onlyAssignedTo" {if $isOnlyAssignedTo} checked="checked" {/if}/>
+               <label for="cb_onlyAssignedTo">{t}Hide tasks not assigned to me{/t}</label>
+               <br />
+               <input type="checkbox" id="cb_hideResolved" name="cb_hideResolved" {if $isHideResolved} checked="checked" {/if}/>
+               <label for="cb_hideResolved">{t}Hide resolved tasks{/t}</label>
+               <br />
+               <input type="checkbox" {if $isForbidAddTimetracksOnClosed} checked="checked" {/if} disabled="disabled"/>
+               <label style="color:gray;">{t}Hide closed tasks{/t}</label>
+
+               <input type="hidden" name="userid" value="{$userid}" />
+               <input type="hidden" name="projectid" value="{$defaultProjectid}" />
+               <input type="hidden" name="bugid" value="{$defaultBugid}" />
+               {if isset($job)}<input type="hidden" name="job" value="{$job}" />{/if}
+               {if isset($duree)}<input type="hidden" name="duree" value="{$duree}" />{/if}
+               <input type="hidden" name="weekid" value="{$weekid}" />
+               <input type="hidden" name="year" value="{$year}" />
+               <input type="hidden" name="action" value="setFiltersAction" />
+               <input type="hidden" name="nextForm" value="addTrackForm" />
+            </fieldset>
+         </form>
+      </div>
+   </div>
+
+   <br>
+   <br>
+   {include file="modal/consistency_check.html"}
+
+   <div align="center" style="display: inline-block;">
+      <div style="margin-top: 2em;">
+         <form id="formUpdateWeek" name="formUpdateWeek" method="post" action="{$page}">
+            <fieldset>
+               <label>{t}Week{/t}</label>
+               <input type="button" id="previousweek" title="{t}Previous week{/t}" value="&lt;&lt;" />
+               <select id="weekid" name="weekid">
+                  {foreach from=$weeks key=id item=i}
+                  <option {if $i.selected}selected="selected"{/if} value="{$i.id}">{$i.value}</option>
+                  {/foreach}
+               </select>
+               <select id="year" name="year">
+                  {foreach from=$years key=id item=i}
+                  <option {if $i.selected}selected="selected"{/if} value="{$i.id}">{$i.id}</option>
+                  {/foreach}
+               </select>
+               <input type="button" id="nextweek" title="{t}Next week{/t}" value="&gt;&gt;" />
+               <input type="hidden" name="projectid" value="{$defaultProjectid}" />
+               <input type="hidden" name="bugid" value="{$defaultBugid}" />
+               <input type="hidden" name="userid" value="{$userid}" />
+               {if isset($job)}<input type="hidden" name="job" value="{$job}" />{/if}
+               {if isset($duree)}<input type="hidden" name="duree" value="{$duree}" />{/if}
+            </fieldset>
+         </form>
+         <div id="weekTaskDetailsDiv" style="margin-top:1em;">
+            {include file="ajax/weekTaskDetails.html"}
+         </div>
+      </div>
+
+      <hr style="margin-top:3em;">
+
+      {if isset($weekTimetrackingTuples) || isset($timetrackingTuples)}
+      <div style="margin-top: 2em;">
+         {if isset($weekTimetrackingTuples)}
+         <table id="weekTimetracksTable" style="margin-top: 2em; width: 100%;">
+            <caption>
+               {t}Week timetracks{/t}
+               <span style="margin-left: 1em;" class="pointer"><img title="{t}Export to CSV{/t}" src="images/b_export_xls.gif" onclick="$('#weekTimetracksTable').table2CSV({literal}{{/literal}filename : 'weekTimetracks.csv'{literal}}{/literal})"/></span>
+            </caption>
+            <thead>
+               <tr>
+                  <th></th>
+                  <th></th>
+                  <th>{t}Date{/t}</th>
+                  <th title="Mantis ID">{t}ID{/t}</th>
+                  <th>{t}Ext.ID{/t}</th>
+                  <th>{t}Duration{/t}</th>
+                  <th>{t}Job{/t}</th>
+                  <!--th>{t}Project{/t}</th-->
+                  <!--th>{t}Category{/t}</th-->
+                  <th>{t}Description{/t}</th>
+                  <th title="{t}Timetrack note{/t}">{t}Note{/t}</th>
+                  <!--th>{t}Status{/t}</th-->
+               </tr>
+            </thead>
+            <tbody id="weekTimetrackingTuples">
+               {foreach from=$weekTimetrackingTuples key=id item=i}
+               <tr class="weekTimetrack" data-weekTimetrackId="{$id}">
+                  <td class="ui-state-error-text" style="width:1em;">
+                        <a class="deleteWeekTimetrack_link pointer ui-icon" title="{t}delete this row{/t}" href="{$page}"
+                  </td>
+                  <td>
+                     <img class="editWeekTimetrack_link pointer" align="absmiddle" title="{t}Edit timetrack{/t}" src="images/b_edit.png"/>
+                  </td>
+                  <td class="weekTimetrack_date" width="170">{$i.cosmeticDate}</td>
+                  <td>{$i.issueURL}</td>
+                  <td>{$i.issueId}</td>
+                  <td class="weekTimetrack_duration">{$i.duration}</td>
+                  <td class="weekTimetrack_jobName" >{$i.jobName}</td>
+                  <!--td>{$i.projectName}</td-->
+                  <!--td nowrap="nowrap">{$i.categoryName}</td-->
+                  <td>{$i.issueSummary}</td>
+                  <td class="weekTimetrack_ttNote">{$i.timetrackNote}</td>
+                  <!--td>{$i.currentStatusName}</td-->
+               </tr>
+               {/foreach}
+            </tbody>
+         </table>
+         {/if}
+
+         {if $timetrackingTuples}
+         <div style="margin-top: 2em;">
+            <table style="margin-top: 2em; width: 100%;">
+               <caption>{t}Future timetracks{/t}</caption>
+               <thead>
+                  <tr>
+                     <th></th>
+                     <th>{t}Date{/t}</th>
+                     <th title="Mantis ID">{t}ID{/t}</th>
+                     <th>{t}Ext.ID{/t}</th>
+                     <th>{t}Duration{/t}</th>
+                     <th>{t}Project{/t}</th>
+                     <th>{t}Description{/t}</th>
+                     <th>{t}Job{/t}</th>
+                     <th>{t}Category{/t}</th>
+                     <th>{t}Status{/t}</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {foreach from=$timetrackingTuples key=id item=i}
+                  <tr class="weekTimetrack" data-weekTimetrackId="{$id}">
+                     <td class="ui-state-error-text" style="width:1em;">
+                        <a class="deleteWeekTimetrack_link pointer ui-icon" title="{t}delete this row{/t}" href="{$page}"
+                     </td>
+                     <td style="width: 170px;">{$i.cosmeticDate}</td>
+                     <td>{$i.issueURL}</td>
+                     <td>{$i.issueId}</td>
+                     <td>{$i.duration}</td>
+                     <td>{$i.projectName}</td>
+                     <td>{$i.issueSummary}</td>
+                     <td>{$i.jobName}</td>
+                     <td nowrap="nowrap">{$i.categoryName}</td>
+                     <td>{$i.currentStatusName}</td>
+                  </tr>
+                  {/foreach}
+               </tbody>
+            </table>
+         </div>
+         {/if}
+         
+         <div id="deleteTrack_dialog_form" title="{t}Delete track{/t}" class="ui-helper-hidden">
+            <p><b>{t}Summary{/t}:</b><br>
+            <textarea readonly class="issue_summary" style="width:100%;background-color:white;" rows="2">issue_summary</textarea>
+            </p>
+            <table class = 'gray' style="width:100%;">
+               <thead>
+                  <tr>
+                     <th>{t}Date{/t}</th>
+                     <th>{t}ID{/t}</th>
+                     <th>{t}Duration{/t}</th>
+                     <th>{t}Job{/t}</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr>
+                     <td id="desc_date" style="text-align:center;"></td>
+                     <td id="desc_id" style="text-align:center;"></td>
+                     <td id="desc_duration" style="text-align:center;"></td>
+                     <td id="desc_job" style="text-align:center;"></td>
+                  </tr>
+               </tbody>
+            </table>
+            <span class="help_font" id="backlogChangeInfo"></span>
+            <form id="formDeleteTrack" name="formDeleteTrack" method="post" action="{$page}" >
+               <fieldset>
+                  <input type="hidden" name="trackid" value="0" />
+                  <input type="hidden" name="action"  value="deleteTrack" />
+                  <input type="hidden" name="nextForm" value="addTrackForm" />
+                  <input type="hidden" name="userid" value="{$userid}" />
+                  <input type="hidden" name="weekid" value="{$weekid}" />
+                  <input type="hidden" name="year" value="{$year}" />
+               </fieldset>
+            </form>
+         </div>
+
+         <div id="editWeekTimetrack_dialog" title="{t}Edit timetrack{/t}">
+            <div id="taskSummary"></div>
+            <table class="invisible">
+               <tbody>
+                  <tr>
+                     <td colspan="3"><hr></td>
+                  </tr>
+                  <tr id="tr_timeToAdd">
+                     <th>{t}Duration{/t} :</th>
+                     <td><select id="timeToEdit" name="timeToEdit" title="{t}Duration (in days){/t}"></select>
+                     <span class="help_font" id="backlogChangeInfo" name="backlogChangeInfo"></span></td>
+                  </tr>
+                  <tr id="tr_editJob">
+                     <th>{t}Job{/t} :</th>
+                     <td><select id="editJob" name="editJob" title="{t}Job{/t}"></select></td>
+                  </tr>
+                  <tr>
+                     <th><label for="datepickerEditer">{t}Date{/t}:</label></th>
+                     <td><input type="text" id="datepickerEditer" class="datepicker" name="date" maxlength="10" size="10" title="{t}Date{/t}" /></td>
+                  </tr>
+                  {if $isTrackNoteDisplayed}
+                  <tr>
+                     <th>{t}Note{/t}:</th>
+                     <td   width="450px"><textarea id="issue_note_edit" class="issue_note" name="issue_note"  style="width:100%;background-color:white;" rows="2"></textarea></td>
+                  </tr>
+                  {/if}
+                  <input type="hidden" id="timetrackId" name="timetrackId"/>
+               </tbody>
+            </table>
+         </div>
+      </div>
+      {/if}
+
+   </div>
+   
+   <script type="text/javascript">
+      // this is to transmit SMARTY variables to time_tracking.js
+      var timetrackingSmartyData = {
+         userid:"{$userid}", // (managedUserid)
+         weekid:"{$weekid}",
+         year:"{$year}",
+         ajaxPage:"{$ajaxPage}",
+         datepickerLocale:"{$locale}",
+         datepickerDate:"{$date}",
+         nbWeeksThisYear:"{$nbWeeksThisYear}",
+         nbWeeksPrevYear:"{$nbWeeksPrevYear}",
+
+         // i18n
+         i18n_Cancel:"{t}Cancel{/t}",
+         i18n_pleaseWait:"{t}Please wait...{/t}",
+         i18n_someFieldsAreMissing:"{t}Some fields are missing:{/t}",
+         i18n_task:"{t}Task{/t}",
+         i18n_job:"{t}Job{/t}",
+         i18n_duration:"{t}Duration{/t}",
+      };
+   </script>
+   <script type="text/javascript" src="js_min/datepicker.min.js"></script>
+   <script type="text/javascript" src="js_min/datatable.min.js"></script>
+   <script src="js_min/time_tracking.min.js"></script>
+
+   {/if}
+   {else}
+   <p class="center ui-state-error-text">{t}Please select a team to access this page.{/t}</p>
+   {/if}
+
+</div>
+

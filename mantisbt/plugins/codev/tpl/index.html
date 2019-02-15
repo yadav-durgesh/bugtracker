@@ -1,0 +1,80 @@
+{if isset($ie)}
+<div style="color:red;margin-top:2em;">
+   {t}IE may not correctly display this website{/t},<br/>
+   {t}please consider using a standard complient web-browser{/t}.<br/>
+</div>
+{/if}
+
+<!-- Main content -->
+<div id="homepage_list" class="left" style="margin-top:2em;">
+
+   <br>
+   <br>
+
+</div>
+
+{if isset($systemConsistencyErrors) }
+<div style="margin-top: 2em;">
+   <table class="invisible">
+      <tbody>
+        {foreach from=$systemConsistencyErrors key=id item=i}
+         <tr class="error_font">
+            <td>{$i.severity}</td>
+            <td>:</td>
+            <td>{$i.desc}</td>
+         </tr>
+        {/foreach}
+      </tbody>
+   </table>
+</div>
+{/if}
+
+
+{if isset($latestVersionInfo) }
+<div style="margin-top: 2em;">
+   <hr>
+   <h2>{t}A new CodevTT version is available !{/t}</h2>
+   <table class="invisible">
+      <tbody>
+         <tr>
+            <td>Installed version</td>
+            <td>:</td>
+            <td>{$codevVersion} ({$codevVersionDate})</td>
+         </tr>
+         <tr>
+            <td>Latest version</td>
+            <td>:</td>
+            <td>{$latestVersionInfo.version} ({$latestVersionInfo.release_date})</td>
+         </tr>
+         <tr>
+            <td>Upgrade instructions</td>
+            <td>:</td>
+            <td><a href="http://codevtt.org/site/?page_id=1801" target="blank">http://codevtt.org/site/?page_id=1801</a></td>
+         </tr>
+      </tbody>
+   </table>
+   
+   <hr>
+</div>
+{/if}
+
+{if isset($displayFairPlay)}
+<hr>
+{include file="modal/fairplay.html"}
+<hr>
+{/if}
+
+<!-- homepage dashboard -->
+<div>
+{include file="tools/dashboard.html"}
+</div>
+
+<script type="text/javascript">
+   jQuery(document).ready(function() {
+      jQuery.ajax({
+         url: "js_min/datatable.min.js",
+         dataType: "script",
+         cache: true
+      });
+   });
+</script>
